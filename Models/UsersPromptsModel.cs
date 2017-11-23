@@ -17,8 +17,8 @@ namespace Happy31
         [JsonProperty("prompt_id"), NotNull]
         public int PromptId { get; set; }
 
-        [JsonProperty("prompt_date"), NotNull]
-        public string CreatedAt { get; set; } = DateTimeOffset.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        [JsonProperty("created_at"), NotNull]
+        public string CreatedAt { get; set; }
 
         [JsonProperty("is_sync"), NotNull]
         public string IsSync { get; set; } = false.ToString();
