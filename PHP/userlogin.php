@@ -1,5 +1,16 @@
 <?php
 
+//
+//  UserLogin.php
+//  Happy31.iOSApp
+//
+//  Copyright © 2017 Denis Klyucherov. All rights reserved.
+//
+//
+// Login user
+// INPUT: email, password, provider
+// OUTPUT: user_id, first_name, last_name, email, provider, avatar, created_at, status, message (if "Error")
+
 require("database.php");
 require("mysqldao.php");
 
@@ -49,6 +60,12 @@ if(!empty($userDetails))
 		{
 			$returnValue["status"] = "Success";
 			$returnValue["user_id"] = $userDetails["id"];
+			$returnValue["first_name"] = $userDetails["first_name"];
+			$returnValue["last_name"] = $userDetails["last_name"];
+			$returnValue["email"] = $email;
+			$returnValue["provider"] = $userDetails["provider"];
+			$returnValue["avatar"] = $userDetails["avatar"];
+			$returnValue["created_at"] = $userDetails["created_at"];
 		}
 		else
 		{

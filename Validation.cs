@@ -1,7 +1,17 @@
-﻿using System.Text.RegularExpressions;
+﻿//
+//  Validation.cs
+//  Happy31.iOSApp
+//
+//  Copyright © 2017 Denis Klyucherov. All rights reserved.
+//
+
+using System.Text.RegularExpressions;
 
 namespace Happy31
 {
+    /// <summary>
+    /// Validation to check users' email and password
+    /// </summary>
     public static class Validation
     {
         static string emailPattern = @"^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$";
@@ -13,29 +23,22 @@ namespace Happy31
         static string _message;
         public static string Message => _message;
 
-        public static bool ValidationResult(string email, string password)
+        public static bool ValidationResult(string value, string fieldName)
         {
-            Match emailMatch = emailRegex.Match(email);
-            Match passwordMatch = passwordRegex.Match(password);
+            Match fieldToMatch;
+            if (fieldName == "email")
+                fieldToMatch = emailRegex.Match(value);
+            else
+                fieldToMatch = passwordRegex.Match(value);
 
-            if (!emailMatch.Success && !passwordMatch.Success)
+            if (!fieldToMatch.Success)
             {
-                _message = "Email and Password are not correct";
+                if (fieldName == "email")
+                    _message = "Email is not correct";
+                else
+                    _message = "Password does not meet security requirements (minimum 4 characters)";
                 return false;
             }
-
-            else if (!emailMatch.Success)
-            {
-                _message = "Email is missing or incorrect";
-                return false;
-            }
-
-            else if (!passwordMatch.Success)
-            {
-                _message = "Password is missing or does not meet security requirements (minimum 4 characters)";
-                return false;
-            }
-
             else
                 return true;
         }

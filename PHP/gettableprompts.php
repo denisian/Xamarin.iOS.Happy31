@@ -1,5 +1,14 @@
 <?php 
 
+//
+//  GetTablePrompts.php
+//  Happy31.iOSApp
+//
+//  Copyright © 2017 Denis Klyucherov. All rights reserved.
+//
+//
+// Sync table "prompts"
+
 require("database.php");
 require("mysqldao.php");
 

@@ -1,4 +1,12 @@
-﻿using System;
+﻿//
+//  RestService.cs
+//  Happy31.iOSApp
+//
+//  Copyright © 2017 Denis Klyucherov. All rights reserved.
+//
+
+using Plugin.Connectivity;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -8,6 +16,9 @@ using Newtonsoft.Json;
 
 namespace Happy31
 {
+    /// <summary>
+    /// RESTful service using JSON to interchange data between local and remote databases
+    /// </summary>
     public class RestService
     {
         HttpClient httpClient;
@@ -19,23 +30,42 @@ namespace Happy31
         public RestService()
         {
             serverUri = new Uri($"http://52.23.248.244/happy31/");
-            //httpClient = new HttpClient
-            //{
-            //    MaxResponseContentBufferSize = 256000
-            //};
         }
 
-        public async Task<JsonResponseModel> PostJsonDataAsync(UsersModel user, string action)
+        // Login user and register using Facebook
+        public async Task<UsersModel> UserLoginAndRegisterJson(UsersModel user, string action)
         {
             try
             {
+                if (!CrossConnectivity.Current.IsConnected || !await CrossConnectivity.Current.IsReachable(serverUri.Host.ToString(), 3000))
+                {
+                    Message = "There was a network problem. Please, try again later";
+                    return new UsersModel() { Status = "Error", Message = this.Message };
+                }
+
+                var user_tmp = new UsersModel();
+                // Disable sending Facebook's avatar to server
+                if (user.LoginProvider == "Facebook")
+                {
+                    user_tmp.Id = user.Id;
+                    user_tmp.FirstName = user.FirstName;
+                    user_tmp.LastName = user.LastName;
+                    user_tmp.Email = user.Email.ToLower();
+                    user_tmp.Password = user.Password;
+                    user_tmp.Avatar = null;
+                    user_tmp.LoginProvider = user.LoginProvider;
+                    user_tmp.CreatedAt = user.CreatedAt;
+                }
+                else
+                    user_tmp = user;
+
                 // Serialize UserModel class into a JSON String
-                var jsonUserSerialize = await Task.Run(() => JsonConvert.SerializeObject(user));
+                var jsonUserSerialize = await Task.Run(() => JsonConvert.SerializeObject(user_tmp));
 
                 // Wrap JSON inside a StringContent which then can be used by the HttpClient class
                 var httpContent = new StringContent(jsonUserSerialize, Encoding.UTF8, "application/json");
 
-                Console.WriteLine(jsonUserSerialize);
+                Console.WriteLine("INPUT content:" + jsonUserSerialize);
 
                 using (httpClient = new HttpClient())
                 {
@@ -43,6 +73,8 @@ namespace Happy31
                         phpFileUri = new Uri(serverUri, "userlogin.php");
                     else if (action == "register")
                         phpFileUri = new Uri(serverUri, "userregister.php");
+                    else if (action == "update")
+                        phpFileUri = new Uri(serverUri, "userupdate.php");
 
                     // Send JSON using HTTP request and receiving HTTP response
                     HttpResponseMessage response = await httpClient.PostAsync(phpFileUri, httpContent);
@@ -54,30 +86,30 @@ namespace Happy31
                         {
                             var responseContent = await response.Content.ReadAsStringAsync();
 
-                            Console.WriteLine(responseContent);
+                            Console.WriteLine("OUTPUT content:" + responseContent);
 
                             // Deserialize JSON
-                            var jsonUserDeserialize = await Task.Run(() => JsonConvert.DeserializeObject<JsonResponseModel>(responseContent));
+                            var jsonUserDeserialize = await Task.Run(() => JsonConvert.DeserializeObject<UsersModel>(responseContent));
 
                             return jsonUserDeserialize;
                         }
                         else
                         {
                             Message = "HTTP Content is empty";
-                            return new JsonResponseModel() { Message = this.Message};
+                            return new UsersModel() { Status = "Error", Message = this.Message };
                         }
                     }
                     else
                     {
                         Message = "HTTP Response Error\n" + new HttpResponseMessage(HttpStatusCode.NotModified);
-                        return new JsonResponseModel() { Message = this.Message };
+                        return new UsersModel() { Status = "Error", Message = this.Message };
                     }
                 }
             }
             catch (Exception ex)
             {
                 Message = ex.Message;
-                return new JsonResponseModel() { Message = this.Message };
+                return new UsersModel() { Status = "Error", Message = this.Message };
             }
         }
 
@@ -86,6 +118,12 @@ namespace Happy31
         {
             try
             {
+                if (!CrossConnectivity.Current.IsConnected || !await CrossConnectivity.Current.IsReachable(serverUri.Host.ToString(), 3000))
+                {
+                    Message = "There was a network problem. Please, try again later";
+                    return null;
+                }
+
                 // Serialize user id into a JSON String
                 var jsonUserSerialize = await Task.Run(() => JsonConvert.SerializeObject(userPrompt));
 
@@ -140,6 +178,12 @@ namespace Happy31
         {
             try
             {
+                if (!CrossConnectivity.Current.IsConnected || !await CrossConnectivity.Current.IsReachable(serverUri.Host.ToString(), 3000))
+                {
+                    Message = "There was a network problem. Please, try again later";
+                    return null;
+                }
+
                 using (httpClient = new HttpClient())
                 {
                     phpFileUri = new Uri(serverUri, "gettableprompts.php");

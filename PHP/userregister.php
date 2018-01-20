@@ -1,5 +1,15 @@
 <?php 
 
+//
+//  UserRegister.php
+//  Happy31.iOSApp
+//
+//  Copyright © 2017 Denis Klyucherov. All rights reserved.
+//
+// Register user
+// INPUT: first_name, last_name, email, password, provider
+// OUTPUT: user_id, created_at, status, message (if "Error")
+
 require("database.php");
 require("mysqldao.php");
 
@@ -46,6 +56,7 @@ if(!empty($userDetails))
 	{
 		$returnValue["status"] = "Success";
 		$returnValue["user_id"] = $userDetails["id"];
+		$returnValue["created_at"] = $userDetails["created_at"];
 	}
 	else
 	{
@@ -89,12 +100,13 @@ $result = $dao->registerUser($guid, $first_name, $last_name, $email, $secure_pas
 
 if($result)
 {
-	// Getting user's id after inserting (use in Facebook authorisation)
-	$userId = $dao->getUserRegisterData($email);
+	// Getting user's details after inserting (use in Facebook authorisation)
+	$userDetails = $dao->getUserRegisterData($email);
 
 	$returnValue["status"] = "Success";
 	$returnValue["message"] = "Registration complete! Please proceed to Sign In";
-	$returnValue["user_id"] = $userId["id"];
+	$returnValue["user_id"] = $userDetails["id"];
+	$returnValue["created_at"] = $userDetails["created_at"];
 }
 else
 {

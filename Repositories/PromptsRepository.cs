@@ -1,10 +1,20 @@
-﻿using System;
+﻿//
+//  PromptsRepository.cs
+//  Happy31.iOSApp
+//
+//  Copyright © 2017 Denis Klyucherov. All rights reserved.
+//
+
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SQLite;
 
 namespace Happy31
 {
+    /// <summary>
+    /// Creating of the table "Prompts" acccording to the PromptsModel. Actions with the table.
+    /// </summary>
     public class PromptsRepository
     {
         SQLiteAsyncConnection database;
@@ -13,13 +23,13 @@ namespace Happy31
 
         public PromptsRepository()
         {
-            string databasePath = SQLiteDatabase.GetDatabasePath();
+            string databasePath = CreateSQLiteDatabase.GetDatabasePath();
             database = new SQLiteAsyncConnection(databasePath);
             database.CreateTableAsync<PromptsModel>(); // Create table if it not exists
         }
 
         // Get Table Prompts from remote database and creating new one in local database
-        public async void GetTablePrompts()
+        public async Task GetTablePrompts()
         {
             try
             {
@@ -32,7 +42,7 @@ namespace Happy31
                 // If there was an error in PostJsonDataAsync class, display message
                 if (jsonRetrievePrompts == null)
                 {
-                    Message = "Something went wrong:" + rs.Message;
+                    Message = rs.Message;
                     return;
                 }
 
@@ -45,13 +55,13 @@ namespace Happy31
 
                 // Insert list of prompts in database
                 //if (dropTable.IsCompleted)
-                    await database.InsertAllAsync(jsonResponse);
+                await database.InsertAllAsync(jsonResponse);
 
                 Console.WriteLine(rs.Message);
             }
-            catch (Exception ex)
+            catch (SQLiteException ex)
             {
-                Message = ex.Message;
+                Console.WriteLine(ex.Message);
             }
         }
 

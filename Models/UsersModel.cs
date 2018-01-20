@@ -1,63 +1,56 @@
-﻿using System;
-using System.Collections.Generic;
+﻿//
+//  UsersModel.cs
+//  Happy31.iOSApp
+//
+//  Copyright © 2017 Denis Klyucherov. All rights reserved.
+//
+
 using Newtonsoft.Json;
 using SQLite;
-using SQLiteNetExtensions.Attributes;
 
 namespace Happy31
 {
-    // Create the Plain Old CLR Object (POCO) class
+    /// <summary>
+    /// Model for the table "Users" in the local database
+    /// </summary>
     [Table("users")]
     public class UsersModel
     {
-        //[PrimaryKey, Unique, JsonProperty("id")]
-        [JsonProperty("user_id")]
-        public string Id { get; set; } //= Guid.NewGuid().ToString();
+        [Ignore]
+        [JsonProperty("status")]
+        public string Status { get; set; }
 
-        //[NotNull]
+        [Ignore]
+        [JsonProperty("message")]
+        public string Message { get; set; }
+
+        [PrimaryKey, Unique]
+        [JsonProperty("user_id")]
+        public string Id { get; set; }
+
+        [NotNull]
         [JsonProperty("first_name")]
         public string FirstName { get; set; }
 
-        //[NotNull]
+        [NotNull]
         [JsonProperty("last_name")]
         public string LastName { get; set; }
 
-        //[NotNull, Unique]
+        [Unique]
         [JsonProperty("email")]
         public string Email { get; set; }
 
+        [Ignore]
         [JsonProperty("password")]
         public string Password { get; set; }
 
-        //[Unique]
-        public string EmailActivationToken { get; set; } // long 41
-       
-        public bool IsActivated { get; set; } // = false; // Activated account
+        [JsonProperty("avatar")]
+        public byte[] Avatar { get; set; }
 
-        public bool IsSuspended { get; set; } // = false; // Suspended account
-
-        public string Avatar { get; set; }
-
-        //[NotNull]
         [JsonProperty("provider")]
         public string LoginProvider { get; set; } // Email/Facebook
 
-        //======= NOT SURE
-
-        //public string ProviderId { get; set; } // ??
-
-        //public string ProviderAccessToken { get; set; }
-        //=================
-
-        public DateTimeOffset CreatedAt { get; set; } //= DateTimeOffset.UtcNow.ToUniversalTime();
-                       
-        [OneToMany]
-        public List<PostsModel> Posts { get; } // 1 to many relations
-
-        [OneToMany]
-        public List<LikesModel> Likes { get; }  // 1 to many relations
-
-        [OneToMany]
-        public List<PermissionsModel> Permissions { get; } // 1 to many relations
+        [JsonProperty("created_at"), NotNull]
+        public string CreatedAt { get; set; }
     }
 }

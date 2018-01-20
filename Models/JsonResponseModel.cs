@@ -1,8 +1,17 @@
-﻿using Newtonsoft.Json;
+﻿//
+//  JsonResponseModel.cs
+//  Happy31.iOSApp
+//
+//  Copyright © 2017 Denis Klyucherov. All rights reserved.
+//
+
+using Newtonsoft.Json;
 
 namespace Happy31
 {
-    // Json model to get messages from server using Json and display them to user
+    /// <summary>
+    /// Model to get messages from the server using Json and display them to the user
+    /// </summary>
     public class JsonResponseModel
     {
         [JsonProperty("status")]
